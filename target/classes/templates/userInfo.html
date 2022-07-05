@@ -12,7 +12,7 @@
     <ul class="navbar-nav mr-auto">
       <a class="navbar-brand font-weight-bold" th:text="${user.getEmail()}"></a>
       <a class="navbar-brand "> with roles: </a>
-      <a class="navbar-brand" th:text="${user.rolesToString()}"></a>
+      <a class="navbar-brand" th:text="${user.getRole()}"></a>
     </ul>
     <ul class="navbar-nav">
       <li class="nav-item">
@@ -68,7 +68,7 @@
                         <td th:text="${user.getLastName()}"></td>
                         <td th:text="${user.getAge()}"></td>
                         <td th:text="${user.getEmail()}"></td>
-                        <td th:utext="${#strings.arrayJoin(user.getRoles(), ' ')}"></td>
+                        <td th:utext="${user.getRole()}"></td>
                       </tr>
                       </tbody>
                     </table>

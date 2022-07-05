@@ -15,19 +15,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.thymeleaf.extras.springsecurity5.dialect.SpringSecurityDialect;
 
-import javax.sql.DataSource;
-
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private DataSource dataSource;
 
     private final UserDetailsService userDetailsService; // сервис, с помощью которого тащим пользователя
     private final LoginSuccessHandler loginSuccessHandler; // класс, в котором описана логика перенаправления пользователей по ролям
 
-    public SecurityConfig(@Qualifier("userDetailsServiceImpl") UserDetailsService userDetailsService, LoginSuccessHandler loginSuccessHandler) {
+    @Autowired
+    public SecurityConfig(UserDetailsService userDetailsService, LoginSuccessHandler loginSuccessHandler) {
         this.userDetailsService = userDetailsService;
         this.loginSuccessHandler = loginSuccessHandler;
     }
@@ -42,10 +39,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
         http
                 .formLogin()
-                    .loginPage("/login")
+//                    .loginPage("/login")
                     .successHandler(loginSuccessHandler)
-                    .loginProcessingUrl("/login")
-                    .usernameParameter("j_email")
+//                    .loginProcessingUrl("/login")
+//                    .usernameParameter("j_email")
                     .passwordParameter("j_password")
                     .permitAll();
 
@@ -56,7 +53,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .clearAuthentication(true)
                     .deleteCookies("JSESSIONID")
                     .logoutSuccessUrl("/login")
-                    .and().csrf().disable();
+//                    .and().csrf().disable()
+        ;
 
         http
                 .authorizeRequests()

@@ -2,71 +2,65 @@ package com.example.springbootrest.service;
 
 import com.example.springbootrest.dao.UserRepository;
 import com.example.springbootrest.model.User;
-import javassist.NotFoundException;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.Principal;
 import java.util.List;
 
 @Service
 @Transactional
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
+    private final UserRepository dao;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserServiceImpl(UserRepository dao) {
+        this.dao = dao;
     }
 
-    private BCryptPasswordEncoder bCrypt() {
-        return new BCryptPasswordEncoder();
+    public void save(User user) {
+        dao.save(user);
+    }
+
+    public List<User> index() {
+        return dao.index();
+    }
+
+    public User getUser(Long id) {
+        return dao.getUser(id);
+    }
+
+    public void delete(Long id) {
+        dao.delete(id);
+    }
+
+    public void update(User user) {
+        dao.update(user);
+    }
+
+    public User getUserByName(String name) {
+        return dao.getUserByName(name);
+    }
+
+    public boolean isAllowed(Long id, Principal principal) {
+        return dao.isAllowed(id, principal);
     }
 
     @Override
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return dao.getAllUsers();
     }
 
+    @SneakyThrows
     @Override
-    public User getUserById(long id) {
-        return userRepository.getUserById(id);
-    }
-
-    @Override
-    public void saveUser(User user) {
-        user.setPassword(bCrypt().encode(user.getPassword()));
-        userRepository.save(user);
-    }
-
-    @Override
-    public void removeUser(long id) {
-        userRepository.deleteById(id);
-    }
-
-    @Override
-    public void updateUser(User user) {
-        user.setPassword(bCrypt().encode(user.getPassword()));
-        userRepository.save(user);
-    }
-
-    @Override
-    public User getUserByEmail(String email) throws NotFoundException {
-        User user = userRepository.getUserByEmail(email);
+    public User loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = dao.getUserByEmail(email);
         if (user == null) {
-            throw new NotFoundException("User with email: '" + email + "' not found");
-        }
-        return user;
-    }
-
-    @Override
-    public User getUserByName(String name) throws NotFoundException {
-        User user = userRepository.getUserByFirstName(name);
-        if (user == null) {
-            throw new NotFoundException("User '" + name + "' not found");
+            throw new UsernameNotFoundException(String.format("User with e-mail: %s not found!", email));
         }
         return user;
     }

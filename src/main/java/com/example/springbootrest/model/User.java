@@ -5,11 +5,12 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
 import javax.persistence.*;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-@Entity
+@Entity(name = "User")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,34 +33,11 @@ public class User implements UserDetails {
     @Column(name = "age")
     private int age;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true)
     private String email;
 
-    public User(String password, String firstName, String lastName, int age, String email) {
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.age = age;
-        this.email = email;
-    }
-
-    public User(String password, String firstName, String lastName, int age, String email, Set<Role> roles) {
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.age = age;
-        this.email = email;
-        this.roles = roles;
-    }
-
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
-    @JoinTable(
-            name = "users_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-
-    private Set<Role> roles = new HashSet<>();
+    @Enumerated(value = EnumType.STRING)
+    private Role role;
 
     @Override
     public String getPassword() {
@@ -68,12 +46,12 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return firstName;
+        return email;
     }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles;
+        return Stream.of(role).collect(Collectors.toList());
     }
 
     @Override
@@ -96,14 +74,21 @@ public class User implements UserDetails {
         return true;
     }
 
-    public String rolesToString() {
-        Set<Role> rolesSet = new TreeSet<Role>(Comparator.comparing(Role::getRole));
-        rolesSet.addAll(getRoles());
-        StringBuilder roles = new StringBuilder();
-        for (Role role : rolesSet) {
-            roles.append(role.getRole().replace("ROLE_", "")).append(" ");
-        }
-        return roles.toString();
+    public User(String password, String firstName, String lastName, int age, String email) {
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.age = age;
+        this.email = email;
+    }
+
+    public User(String password, String firstName, String lastName, int age, String email, Role role) {
+        this.password = password;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.age = age;
+        this.email = email;
+        this.role = role;
     }
 
     @Override
@@ -111,12 +96,12 @@ public class User implements UserDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return id == user.id && age == user.age && password.equals(user.password) && firstName.equals(user.firstName) && lastName.equals(user.lastName) && email.equals(user.email) && roles.equals(user.roles);
+        return id == user.id && age == user.age && password.equals(user.password) && firstName.equals(user.firstName) && lastName.equals(user.lastName) && email.equals(user.email) && role.equals(user.role);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, password, firstName, lastName, age, email, roles);
+        return Objects.hash(id, password, firstName, lastName, age, email, role);
     }
 
     @Override
@@ -128,7 +113,7 @@ public class User implements UserDetails {
                 ", Last name='" + lastName + '\'' +
                 ", age='" + age + '\'' +
                 ", email='" + email + '\'' +
-                ", roles=" + roles +
+                ", roles=" + role +
                 '}';
     }
 }

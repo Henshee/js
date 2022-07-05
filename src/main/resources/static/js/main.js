@@ -12,7 +12,7 @@ function getAllUsers() {
                 <td id="lastName${user.id}">${user.lastName}</td> 
                 <td id="age${user.id}">${user.age}</td>
                 <td id="email${user.id}">${user.email}</td>
-                <td id="roles${user.id}">${user.roles.map(r => r.role.replace('ROLE_', '')).join(', ')}</td>
+                <td id="roles${user.id}">${user.role}</td>
                 <td>
                 <button class="btn btn-info btn-md" type="button"
                 data-toggle="modal" data-target="#modalEdit" 
@@ -56,17 +56,25 @@ function openModal(id) {
 }
 
 //---------------------------Добавление нового юзера---------------------------
-document.getElementById("NewUserForm")
-    .addEventListener("submit", addNewUser);
+// document.getElementById("NewUserForm")
+//     .addEventListener("submit", addNewUser);
 
 function addNewUser(e) {
-    e.preventDefault();
+    // e.preventDefault();
 
     let firstname = document.getElementById('newFirstName').value;
     let lastname = document.getElementById('newLastName').value;
     let age = document.getElementById('newAge').value;
     let email = document.getElementById('newEmail').value;
     let password = document.getElementById('newPassword').value;
+    let role;
+    let list = Array.from(document.getElementById('newRole').selectedOptions);
+    if (list.indexOf("USER") >= 0) {
+        role = 'ROLE_USER'
+    }
+    if (list.indexOf("ADMIN") >= 0) {
+        role = 'ROLE_ADMIN'
+    }
     let roles = getRoles(Array.from(document.getElementById('newRole').selectedOptions)
         .map(role => role.value));
     fetch("http://localhost:8080/api/newUser", {
@@ -81,7 +89,7 @@ function addNewUser(e) {
             age: age,
             email: email,
             password: password,
-            roles: roles
+            role: role
         })
     })
         .then(() => {
@@ -103,7 +111,7 @@ function showUserInfo() {
             <td>${user.lastName}</td>
             <td>${user.age}</td>
             <td>${user.email}</td>
-            <td>${user.roles.map(r => r.role.replace("ROLE_", "")).join(", ")}</td>
+            <td>${user.role}</td>
             </tr>`;
             document.getElementById("userInfo").innerHTML = temp;
         });
@@ -125,7 +133,7 @@ async function editUser() {
         password: document.getElementById('editPassword').value,
         roles: $('#editRole').val()
     }
-    const updated = await fetch('http://localhost:8080/api/update', {
+    const updated = await fetch('http://localhost:8080/api/user', {
         method: "PUT",
         headers: {
             'Accept': 'application/json',
@@ -144,7 +152,7 @@ async function editUser() {
 
 //---------------------------Удаление юзера---------------------------
 async function deleteUser() {
-    await fetch("http://localhost:8080/api/delete/" + document.getElementById("delId").value, {
+    await fetch("http://localhost:8080/api/user/" + document.getElementById("delId").value, {
         method: 'DELETE',
         headers: {
             'Accept': 'application/json',

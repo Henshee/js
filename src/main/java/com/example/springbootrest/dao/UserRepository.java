@@ -1,15 +1,26 @@
 package com.example.springbootrest.dao;
 
 import com.example.springbootrest.model.User;
-import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
-
+import java.security.Principal;
 import java.util.List;
 
-@EnableJpaRepositories
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository {
 
-    User getUserById(long id);
-    User getUserByFirstName(String name);
+    void save(User user);
+
+    List<User> index();
+
+    User getUser(Long id);
+
+    void delete(Long id);
+
+    void update(User user);
+
+    User getUserByName(String name);
+
+    boolean isAllowed(Long id, Principal principal);
+
     User getUserByEmail(String email);
+
+    List<User> getAllUsers();
 }

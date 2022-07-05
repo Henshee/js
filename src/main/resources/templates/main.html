@@ -12,7 +12,7 @@
     <ul class="navbar-nav mr-auto">
       <a class="navbar-brand font-weight-bold" th:text="${user.getEmail()}"></a>
       <a class="navbar-brand "> with roles: </a>
-      <a class="navbar-brand" th:text="${user.rolesToString()}"></a>
+      <a class="navbar-brand" th:text="${user.getRole()}"></a>
     </ul>
     <ul class="navbar-nav">
       <li class="nav-item">
@@ -166,7 +166,7 @@
                                   data-dismiss="modal">Close</button>
                           <button type="submit"
                                   class="btn btn-primary"
-                                  >Edit</button>
+                          >Edit</button>
                         </div>
                       </form>
                     </div>
